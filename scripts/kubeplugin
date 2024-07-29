@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Define command-line arguments
+
+#pods/nods
+RESOURCE_TYPE=$1
+#namespace
+NS=$2
+
+if [ -z "$NS" ];then
+  NS="default"
+fi
+
+printf "%-10s %-15s %-30s %-10s %-10s\n" "RESOURCE" "NAMESPACE" "NAME" "CPU" "MEMORY"
+
+# Retrieve resource usage statistics from Kubernetes
+#echo $"kubectl top $RESOURCE_TYPE -n $NS"
+kubectl top $RESOURCE_TYPE -n $NS | tail -n +2 | while read line
+do
+  # Extract CPU and memory usage from the output
+  NAME=$(echo $line | awk '{print $1}')
+  CPU=$(echo $line | awk '{print $2}')
+  MEMORY=$(echo $line | awk '{print $3}')
+
+  # Output the statistics to the console
+  # "Resource, Namespace, Name, CPU, Memory"
+  printf "%-10s %-15s %-30s %-10s %-10s\n" "$RESOURCE_TYPE" "$NS" "$NAME" "$CPU" "$MEMORY"
+done
